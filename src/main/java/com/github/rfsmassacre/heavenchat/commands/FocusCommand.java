@@ -1,42 +1,45 @@
-package com.github.rfsmassacre.heavenchat2.commands;
+package com.github.rfsmassacre.heavenchat.commands;
 
-import com.github.rfsmassacre.heavenchat2.HeavenChat;
-import com.github.rfsmassacre.heavenchat2.channels.Channel;
-import com.github.rfsmassacre.heavenchat2.library.commands.VelocityCommand;
-import com.github.rfsmassacre.heavenchat2.library.configs.Locale;
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
-import com.velocitypowered.api.command.CommandSource;
-import com.velocitypowered.api.proxy.Player;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenchat.channels.Channel;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
+import com.github.rfsmassacre.heavenlibrary.paper.configs.PaperLocale;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-public class FocusCommand extends VelocityCommand
+public class FocusCommand extends Command
 {
+	private final PaperLocale locale;
 	private final Channel channel;
 	private final String subPermission;
 	
 	public FocusCommand(Channel channel) 
 	{
-		super(HeavenChat.getInstance().getLocale(), channel.getShortcut());
-		
+		super(channel.getShortcut());
+
+		this.locale = HeavenChat.getInstance().getLocale();
 		this.channel = channel;
 		this.subPermission = "heavenchat.channel." + channel.getName();
 	}
 
 	@Override
-	public void execute(Invocation invocation)
+	public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args)
 	{
-		if (invocation.source() instanceof Player player)
+		if (sender instanceof Player player)
 		{
 			ChannelMember member = ChannelMember.getMember(player.getUniqueId());
 			if (!player.hasPermission(subPermission))
 			{
 				locale.sendLocale(player, "channel.no-perm", "{channel}", channel.getDisplayName());
-				return;
+				return true;
 			}
 			
 			if (channel.isMemberId(member.getPlayerId()))
 			{
 				//Focus to this channel
-				if (invocation.arguments().length == 0)
+				if (args.length == 0)
 				{
 					if (member.getFocusedMember() != null || member.getFocusedChannel() == null || 
 					   !member.getFocusedChannel().equals(channel))
@@ -54,7 +57,7 @@ public class FocusCommand extends VelocityCommand
 				//Send message to this channel
 				else
 				{
-					String message = String.join(" ", invocation.arguments());
+					String message = String.join(" ", args);
 					channel.sendMessage(member, message);
 				}
 			}
@@ -67,19 +70,9 @@ public class FocusCommand extends VelocityCommand
 		else
 		{
 			//Console error
-			locale.sendLocale(invocation.source(), "error.console");
+			locale.sendLocale(sender, "error.console");
 		}
-	}
 
-	@Override
-	protected void onFail(CommandSource sender)
-	{
-		locale.sendLocale(sender, "channel.no-perm", "{channel}", channel.getDisplayName());
-	}
-
-	@Override
-	protected void onInvalidArgs(CommandSource sender)
-	{
-		locale.sendLocale(sender, "commands.invalid-subcommand");
+		return true;
 	}
 }

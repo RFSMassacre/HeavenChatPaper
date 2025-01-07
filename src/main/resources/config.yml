@@ -46,28 +46,6 @@ commands:
   - "op"
   - "deop"
 
-servers:
-  discord:
-    prefix: "&1[&9Discord&1] "
-    color: "&6"
-    channel: "global"
-  hub:
-    prefix: "&6[&eHub&6] "
-    color: "&e"
-    channel: "global"
-  faction:
-    prefix: "&2[&aFactions&2] "
-    color: "&2"
-    channel: "server"
-  creative:
-    prefix: "&3[&bCreative&3] "
-    color: "&3"
-    channel: "server"
-  games:
-    prefix: "&4[&cGames&4] "
-    color: "&4"
-    channel: "server"
-
 pm-formats:
   pm-send: "&6You &2&l»&r &f%luckperms_prefix%&f%player_displayname%&r&5: &d{message}"
   pm-receive: "&f%luckperms_prefix%&f%player_displayname%&r &c&l»&r &6You&5: &d{message}"

@@ -1,15 +1,16 @@
-package com.github.rfsmassacre.heavenchat2.data;
+package com.github.rfsmassacre.heavenchat.data;
 
-import com.github.rfsmassacre.heavenchat2.library.managers.GsonManager;
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
+import com.github.rfsmassacre.heavenlibrary.paper.managers.PaperGsonManager;
 
-public class MemberGson extends GsonManager<ChannelMember>
+public class MemberGson extends PaperGsonManager<ChannelMember>
 {
     /**
      * Constructor.
      */
     public MemberGson()
     {
-        super("players", ChannelMember.class);
+        super(HeavenChat.getInstance(), "players", ChannelMember.class);
     }
 }

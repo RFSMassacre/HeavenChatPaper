@@ -1,7 +1,7 @@
-package com.github.rfsmassacre.heavenchat2.events;
+package com.github.rfsmassacre.heavenchat.events;
 
-import com.github.rfsmassacre.heavenchat2.channels.Channel;
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
+import com.github.rfsmassacre.heavenchat.channels.Channel;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
 import lombok.Getter;
 
 public class ChannelLeaveEvent extends ChannelEvent

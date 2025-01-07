@@ -1,9 +1,9 @@
-package com.github.rfsmassacre.heavenchat2.utils;
+package com.github.rfsmassacre.heavenchat.utils;
 
-import com.github.rfsmassacre.heavenchat2.HeavenChat;
-import com.github.rfsmassacre.heavenchat2.library.configs.Configuration;
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
-import org.apache.commons.lang3.StringUtils;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
+import com.github.rfsmassacre.heavenlibrary.paper.configs.PaperConfiguration;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,14 +41,13 @@ public class SpamUtil
      */
     public static String getFloodSpamTime(ChannelMember member)
     {
-        Configuration config = HeavenChat.getInstance().getConfiguration();
-        if (config.getBoolean("filters.flood-filter.enabled"))
+        PaperConfiguration config = HeavenChat.getInstance().getConfiguration();
+        Message message = MESSAGES.get(member.getPlayerId());
+        if (config.getBoolean("filters.flood-filter.enabled") && message != null)
         {
             int cooldown = config.getInt("filters.flood-filter.message-cooldown") * SECOND;
-            float time = (System.currentTimeMillis() - MESSAGES.get(member.getPlayerId()).time);
-            float timeRemaining = cooldown - time;
-
-            return String.format("%.1f", (timeRemaining / SECOND));
+            double time = System.currentTimeMillis() - message.time;
+            return String.format("%.1f", (cooldown - time) / SECOND);
         }
 
         return "0";
@@ -56,13 +55,14 @@ public class SpamUtil
 
     public static boolean isFloodSpam(ChannelMember member)
     {
-        Configuration config = HeavenChat.getInstance().getConfiguration();
-        if (config.getBoolean("filters.flood-filter.enabled") && MESSAGES.get(member.getPlayerId()) != null
+        PaperConfiguration config = HeavenChat.getInstance().getConfiguration();
+        Message message = MESSAGES.get(member.getPlayerId());
+        if (config.getBoolean("filters.flood-filter.enabled") && message != null
                 && !member.getPlayer().hasPermission("heavenchat.spam.flood"))
         {
             int cooldown = config.getInt("filters.flood-filter.message-cooldown") * SECOND;
-            long time = System.currentTimeMillis() - MESSAGES.get(member.getPlayerId()).time;
-            return time <= cooldown;
+            long time = System.currentTimeMillis() - message.time;
+            return cooldown - time <= cooldown && cooldown - time >= 0;
         }
 
         return false;
@@ -71,7 +71,6 @@ public class SpamUtil
     private static int getHammingDistance(String message, String target)
     {
         int hamming = 0;
-
         for (int index = 0; index < message.length() && index < target.length(); index++)
         {
             if (message.charAt(index) != target.charAt(index))
@@ -84,19 +83,20 @@ public class SpamUtil
 
     public static boolean isRepetitionSpam(ChannelMember member, String message)
     {
-        Configuration config = HeavenChat.getInstance().getConfiguration();
+        PaperConfiguration config = HeavenChat.getInstance().getConfiguration();
         if (config.getBoolean("filters.repetition-filter.enabled") && MESSAGES.get(member.getPlayerId()) != null
                 && !member.getPlayer().hasPermission("heavenchat.spam.repetition"))
         {
-            String lastMessage = MESSAGES.get(member.getPlayerId()).message.replaceAll(" ", "").toLowerCase();
+            String lastMessage = MESSAGES.get(member.getPlayerId()).message.replaceAll(" ",
+                    "").toLowerCase();
             String thisMessage = message.replaceAll(" ", "").toLowerCase();
 
-            double levenshtein = StringUtils.getLevenshteinDistance(lastMessage, thisMessage);
-            double hamming = getHammingDistance(lastMessage, thisMessage);
+            int levenshtein = LevenshteinDistance.getDefaultInstance().apply(lastMessage, thisMessage);
+            int hamming = getHammingDistance(lastMessage, thisMessage);
             double limit = Math.max(lastMessage.length(), thisMessage.length());
-            double percent = (1 - ((hamming + levenshtein) / 2) / limit) * 100;
-
-            return percent >= config.getInt("filters.repetition-filter.block-percent");
+            double percent = (1 - ((double) (hamming + levenshtein) / 2) / limit) * 100;
+            double maxPercent = config.getInt("filters.repetition-filter.block-percent");
+            return percent > 0 && percent >= maxPercent;
         }
 
         return false;
@@ -108,12 +108,14 @@ public class SpamUtil
      */
     public static String filterSpam(ChannelMember member, String message)
     {
-        return filterCapSpam(member, filterLengthSpam(member, filterCharacterSpam(member, message)));
+        String filtered = filterCapSpam(member, message);
+        filtered = filterLengthSpam(member, filtered);
+        return filtered;
     }
 
     private static String filterCharacterSpam(ChannelMember member, String message)
     {
-        Configuration config = HeavenChat.getInstance().getConfiguration();
+        PaperConfiguration config = HeavenChat.getInstance().getConfiguration();
         if (config.getBoolean("filters.character-filter.enabled") &&
                 !member.getPlayer().hasPermission("heavenchat.spam.character"))
         {
@@ -125,7 +127,7 @@ public class SpamUtil
 
     private static String filterLengthSpam(ChannelMember member, String message)
     {
-        Configuration config = HeavenChat.getInstance().getConfiguration();
+        PaperConfiguration config = HeavenChat.getInstance().getConfiguration();
         if (config.getBoolean("filters.word-length-filter.enabled") &&
                 !member.getPlayer().hasPermission("heavenchat.spam.length"))
         {
@@ -147,7 +149,7 @@ public class SpamUtil
 
     private static String filterCapSpam(ChannelMember member, String message)
     {
-        Configuration config = HeavenChat.getInstance().getConfiguration();
+        PaperConfiguration config = HeavenChat.getInstance().getConfiguration();
         if (config.getBoolean("filters.caps-filter.enabled") &&
                 !member.getPlayer().hasPermission("heavenchat.spam.caps"))
         {

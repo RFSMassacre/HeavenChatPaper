@@ -1,7 +1,7 @@
-package com.github.rfsmassacre.heavenchat2.utils;
+package com.github.rfsmassacre.heavenchat.utils;
 
-import com.github.rfsmassacre.heavenchat2.HeavenChat;
-import com.github.rfsmassacre.heavenchat2.library.configs.Configuration;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenlibrary.paper.configs.PaperConfiguration;
 import org.apache.commons.codec.language.DoubleMetaphone;
 import org.apache.commons.lang3.StringUtils;
 
@@ -58,9 +58,9 @@ public class SwearUtils
 
 	public static String replaceSwear(String message, int firstIndex, int lastIndex)
 	{
-		Configuration config = HeavenChat.getInstance().getConfiguration();
+		PaperConfiguration config = HeavenChat.getInstance().getConfiguration();
 		String stringCensor = config.getString("filters.profanity-filter.censor");
-		char censor = (!stringCensor.equals("") ? stringCensor.charAt(0) : '*');
+		char censor = (!stringCensor.isEmpty() ? stringCensor.charAt(0) : '*');
 		
 		char[] chars = message.toCharArray();
 		for (int index = firstIndex; index < lastIndex + 1; index++)
@@ -76,7 +76,7 @@ public class SwearUtils
 	
 	public boolean containsSwear(String message, Set<String> swears)
 	{
-		Configuration config = HeavenChat.getInstance().getConfiguration();
+		PaperConfiguration config = HeavenChat.getInstance().getConfiguration();
 		String rawMessage = removeNonAlphabet(fromLeetSpeak(message)).toLowerCase();
 		for (Swear coord : extractIndexes(rawMessage, swears))
 		{
@@ -95,7 +95,7 @@ public class SwearUtils
 
 	public static String censorSwears(String message, Set<String> swears)
 	{
-		Configuration config = HeavenChat.getInstance().getConfiguration();
+		PaperConfiguration config = HeavenChat.getInstance().getConfiguration();
 		String rawMessage = fromLeetSpeak(message).toLowerCase();
 		String finalMessage = message;
 		for (Swear coord : extractIndexes(rawMessage, swears))
@@ -114,7 +114,7 @@ public class SwearUtils
 	}
 	private static List<Swear> extractIndexes(String message, Set<String> swears)
 	{
-		Configuration config = HeavenChat.getInstance().getConfiguration();
+		PaperConfiguration config = HeavenChat.getInstance().getConfiguration();
 		String rawMessage = fromLeetSpeak(message);
 		List<Swear> coords = new ArrayList<>();
 		for (String swear : swears)

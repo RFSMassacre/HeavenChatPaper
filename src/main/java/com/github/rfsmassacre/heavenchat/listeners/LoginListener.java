@@ -1,31 +1,21 @@
-package com.github.rfsmassacre.heavenchat2.listeners;
+package com.github.rfsmassacre.heavenchat.listeners;
 
-import com.github.rfsmassacre.heavenchat2.HeavenChat;
-import com.github.rfsmassacre.heavenchat2.channels.Channel;
-import com.github.rfsmassacre.heavenchat2.library.configs.Configuration;
-import com.github.rfsmassacre.heavenchat2.library.configs.Locale;
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
-import com.google.inject.Inject;
-import com.velocitypowered.api.event.ResultedEvent.ComponentResult;
-import com.velocitypowered.api.event.ResultedEvent.GenericResult;
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.connection.DisconnectEvent;
-import com.velocitypowered.api.event.connection.LoginEvent;
-import com.velocitypowered.api.event.connection.PostLoginEvent;
-import com.velocitypowered.api.event.player.ServerConnectedEvent;
-import com.velocitypowered.api.proxy.Player;
-import com.velocitypowered.api.proxy.ServerConnection;
-import org.slf4j.Logger;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenchat.channels.Channel;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
+import com.github.rfsmassacre.heavenlibrary.paper.configs.PaperConfiguration;
+import com.github.rfsmassacre.heavenlibrary.paper.configs.PaperLocale;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.List;
-import java.util.Optional;
-
-public class LoginListener
+public class LoginListener implements Listener
 {
-	private final Configuration config;
-	private final Locale locale;
+	private final PaperConfiguration config;
+	private final PaperLocale locale;
 
-	@Inject
 	public LoginListener()
 	{
 		this.config = HeavenChat.getInstance().getConfiguration();
@@ -37,21 +27,16 @@ public class LoginListener
 	 * the sub-server's notification. If the player's data hasn't
 	 * been loaded in yet, it's assumed this is their first login.
 	 */
-	@Subscribe
-	public void onPlayerJoin(LoginEvent event)
+	@EventHandler(ignoreCancelled = true)
+	public void onPlayerJoin(PlayerLoginEvent event)
 	{
-		if (!event.getResult().equals(ComponentResult.allowed()))
-		{
-			return;
-		}
-
 		Player player = event.getPlayer();
 		ChannelMember.getData().readAsync(player.getUniqueId().toString(), (loginMember) ->
 		{
-			Logger logger = HeavenChat.getInstance().getLogger();
 			if (loginMember == null)
 			{
 				loginMember = new ChannelMember(player);
+				loginMember.setDisplayName(player.getDisplayName());
 
 				//Add member to all channels available
 				for (Channel channel : Channel.getChannels())
@@ -68,53 +53,27 @@ public class LoginListener
 				ChannelMember.getData().write(loginMember.getPlayerId().toString(), loginMember);
 				if (config.getBoolean("enable-join-messages"))
 				{
-					for (Player online : HeavenChat.getInstance().getServer().getAllPlayers())
+					for (Player online : HeavenChat.getInstance().getServer().getOnlinePlayers())
 					{
-						locale.sendLocale(online, player,false,"login.first-login-message",
-								"{player}", loginMember.getName());
+						locale.sendLocale(online, false, "login.first-login-message",
+								"{player}", loginMember.getDisplayName().replace("{nicknameprefix}",
+										"&f◆"));
 					}
 				}
 			}
 			else
 			{
-				logger.info(player.getUsername() + " has file!");
 				if (config.getBoolean("enable-join-messages"))
 				{
-					for (Player online : HeavenChat.getInstance().getServer().getAllPlayers())
+					for (Player online : HeavenChat.getInstance().getServer().getOnlinePlayers())
 					{
-						locale.sendLocale(online, player,false,"login.login-message", "{player}",
-								player.getUsername());
-					}
-				}
-
-				if (config.getBoolean("force-focus-channels"))
-				{
-					String serverName = "";
-					Optional<ServerConnection> server = loginMember.getPlayer().getCurrentServer();
-					if (server.isPresent())
-					{
-						serverName = server.get().getServerInfo().getName();
-					}
-
-					Channel serverChannel = Channel.getChannel(config.getString("servers." +
-							serverName + ".channel"));
-					List<String> ignoredChannels = config.getStringList("ignored-channels");
-					if (serverChannel != null && serverChannel.isMemberId(loginMember.getPlayerId()) &&
-							!ignoredChannels.contains(loginMember.getFocusedChannel().getName()))
-					{
-						if (serverChannel.canJoin(loginMember) && !serverChannel.isMemberId(loginMember.getPlayerId()))
-						{
-							//Add to channel
-							serverChannel.addMemberIds(player.getUniqueId());
-							loginMember.setFocusedChannel(serverChannel);
-							loginMember.setFocusedMember(null);
-							locale.sendLocale(loginMember.getPlayer(), player, true, "channel.joined",
-									"{channel}", serverChannel.getDisplayName());
-						}
+						locale.sendLocale(online, false,"login.login-message", "{player}",
+								loginMember.getDisplayName().replace("{nicknameprefix}", "&f◆"));
 					}
 				}
 			}
 
+			loginMember.setDisplayName(player.getDisplayName());
 			ChannelMember.addMember(loginMember);
 		});
 
@@ -122,8 +81,8 @@ public class LoginListener
 
 	}
 
-	@Subscribe
-	public void onPlayerLeave(DisconnectEvent event)
+	@EventHandler
+	public void onPlayerLeave(PlayerQuitEvent event)
 	{
 		Player player = event.getPlayer();
 		ChannelMember member = ChannelMember.getMember(player.getUniqueId());
@@ -137,48 +96,10 @@ public class LoginListener
 
 			if (config.getBoolean("enable-join-messages"))
 			{
-				for (Player online : HeavenChat.getInstance().getServer().getAllPlayers())
+				for (Player online : HeavenChat.getInstance().getServer().getOnlinePlayers())
 				{
-					locale.sendLocale(online, player,false, "login.logout-message", "{player}",
-							member.getName());
-				}
-			}
-		}
-	}
-
-
-	@Subscribe
-	public void onPlayerSwitch(ServerConnectedEvent event)
-	{
-		Player player = event.getPlayer();
-		ChannelMember member = ChannelMember.getMember(player.getUniqueId());
-
-		//Update the server they are currently connected in
-		if (member != null)
-		{
-			if (config.getBoolean("force-focus-channels"))
-			{
-				String serverName = "";
-				Optional<ServerConnection> server = member.getPlayer().getCurrentServer();
-				if (server.isPresent())
-				{
-					serverName = server.get().getServerInfo().getName();
-				}
-
-				Channel serverChannel = Channel.getChannel(config.getString("servers." +
-						serverName + ".channel"));
-				if (serverChannel != null && serverChannel.isMemberId(member.getPlayerId()) &&
-						!config.getStringList("ignored-channels").contains(member.getFocusedChannel().getName()))
-				{
-					if (serverChannel.canJoin(member))
-					{
-						//Add to channel
-						serverChannel.addMemberIds(player.getUniqueId());
-						member.setFocusedChannel(serverChannel);
-						member.setFocusedMember(null);
-						locale.sendLocale(member.getPlayer(), false, "channel.joined", "{channel}",
-								serverChannel.getDisplayName());
-					}
+					locale.sendLocale(online, false, "login.logout-message", "{player}",
+							member.getDisplayName());
 				}
 			}
 		}

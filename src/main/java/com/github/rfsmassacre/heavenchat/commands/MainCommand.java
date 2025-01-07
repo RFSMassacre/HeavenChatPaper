@@ -1,27 +1,24 @@
-package com.github.rfsmassacre.heavenchat2.commands;
+package com.github.rfsmassacre.heavenchat.commands;
 
-import com.github.rfsmassacre.heavenchat2.HeavenChat;
-import com.github.rfsmassacre.heavenchat2.channels.Channel;
-import com.velocitypowered.api.command.CommandSource;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenchat.channels.Channel;
+import com.github.rfsmassacre.heavenlibrary.paper.commands.PaperCommand;
+import org.bukkit.command.CommandSender;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
-public class MainCommand extends HeavenCommand
+public class MainCommand extends PaperCommand
 {
 	public MainCommand() 
 	{
-		super("heavenchat");
-
-		addSubCommand(new ReloadCommand());
+		super(HeavenChat.getInstance(), "heavenchat");
 	}
 	
 	/*
 	 * Reload Command
 	 */
-	private class ReloadCommand extends SubCommand
+	private class ReloadCommand extends PaperSubCommand
 	{
 		public ReloadCommand()
 		{
@@ -29,7 +26,7 @@ public class MainCommand extends HeavenCommand
 		}
 		
 		@Override
-		protected void onRun(CommandSource sender, String[] args)
+		protected void onRun(CommandSender sender, String[] args)
 		{
 			//Reloads config and locale
 			HeavenChat.getInstance().getConfiguration().reload();
@@ -39,12 +36,6 @@ public class MainCommand extends HeavenCommand
 			Channel.loadAllChannels();
 			
 			locale.sendLocale(sender, "admin.reload");
-		}
-
-		@Override
-		protected List<String> onTabComplete(CommandSource sender, String[] args)
-		{
-			return Collections.emptyList();
 		}
 	}
 }

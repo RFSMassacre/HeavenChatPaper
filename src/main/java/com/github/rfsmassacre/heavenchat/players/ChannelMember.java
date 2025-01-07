@@ -1,21 +1,22 @@
-package com.github.rfsmassacre.heavenchat2.players;
+package com.github.rfsmassacre.heavenchat.players;
 
-import com.github.rfsmassacre.heavenchat2.HeavenChat;
-import com.github.rfsmassacre.heavenchat2.channels.Channel;
-import com.github.rfsmassacre.heavenchat2.data.MemberGson;
-import com.github.rfsmassacre.heavenchat2.events.ChannelMessageEvent;
-import com.github.rfsmassacre.heavenchat2.events.PrivateMessageEvent;
-import com.github.rfsmassacre.heavenchat2.events.SpyMessageEvent;
-import com.github.rfsmassacre.heavenchat2.library.configs.Configuration;
-import com.github.rfsmassacre.heavenchat2.library.configs.Locale;
-import com.github.rfsmassacre.heavenchat2.utils.SwearUtils;
-import com.velocitypowered.api.proxy.Player;
-import com.velocitypowered.api.proxy.ServerConnection;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenchat.channels.Channel;
+import com.github.rfsmassacre.heavenchat.data.MemberGson;
+import com.github.rfsmassacre.heavenchat.events.PrivateMessageEvent;
+import com.github.rfsmassacre.heavenchat.events.SpyMessageEvent;
+import com.github.rfsmassacre.heavenchat.utils.SwearUtils;
+import com.github.rfsmassacre.heavenlibrary.paper.configs.PaperConfiguration;
+import com.github.rfsmassacre.heavenlibrary.paper.configs.PaperLocale;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 
+@Getter
+@Setter
 public class ChannelMember
 {
     private static final Map<UUID, ChannelMember> MEMBERS = new HashMap<>();
@@ -59,33 +60,22 @@ public class ChannelMember
         return DATA;
     }
 
-    @Getter
     private final UUID playerId;
-    @Getter
-    @Setter
     private String name;
-    @Getter
-    @Setter
+    private String displayName;
     private UUID focusedMemberId;
-    @Getter
-    @Setter
     private UUID lastMemberId;
-    @Getter
-    @Setter
     private String focusedChannelName;
     private final Set<UUID> ignoredPlayerIds;
-    @Getter
-    @Setter
     private boolean spying;
-    @Getter
-    @Setter
     private boolean filtered;
     private final Set<String> blockedWords;
 
     public ChannelMember(Player player)
     {
         this.playerId = player.getUniqueId();
-        this.name = player.getUsername();
+        this.name = player.getName();
+        this.displayName = player.getDisplayName();
         this.ignoredPlayerIds = new HashSet<>();
         this.spying = false;
         this.filtered = true;
@@ -95,8 +85,18 @@ public class ChannelMember
 
     public Player getPlayer()
     {
-        Optional<Player> optional = HeavenChat.getInstance().getServer().getPlayer(playerId);
-        return optional.orElse(null);
+        return HeavenChat.getInstance().getServer().getPlayer(playerId);
+    }
+
+    public String getDisplayName()
+    {
+        Player player = getPlayer();
+        if (player != null)
+        {
+            this.displayName = player.getDisplayName();
+        }
+
+        return displayName != null && !displayName.isEmpty() ? displayName : name;
     }
 
     /*
@@ -183,73 +183,79 @@ public class ChannelMember
      */
     public void sendChannelMessage(Channel channel, ChannelMember sender, String message)
     {
-        ChannelMessageEvent event = new ChannelMessageEvent(sender, channel, message);
-        HeavenChat.getInstance().getServer().getEventManager().fire(event).thenAccept((action) ->
+        Bukkit.getScheduler().scheduleSyncDelayedTask(HeavenChat.getInstance(), () ->
         {
-            if (action.getResult().isAllowed() && !hasIgnored(action.getMember()))
+            if (hasIgnored(sender))
             {
-                Configuration config = HeavenChat.getInstance().getConfiguration();
-                Locale locale = HeavenChat.getInstance().getLocale();
-                String serverName = "default";
-                Optional<ServerConnection> optional = action.getMember().getPlayer().getCurrentServer();
-                if (optional.isPresent())
-                {
-                    serverName = optional.get().getServerInfo().getName();
-                }
+                return;
+            }
 
-                String format = action.getChannel().getFormat();
-                String serverPrefix = config.getString("servers." +  serverName + ".prefix");
-                String server =  serverPrefix != null ? serverPrefix : "";
-                String serverColor = config.getString("servers." + serverName + ".color");
-                String color =  serverColor != null ? serverColor : "";
-                locale.sendMessage(getPlayer(), action.getMember().getPlayer(), false, format, "{sender}",
-                        action.getMember().getName(), "{server}", server, "{message}", (filtered ?
-                                SwearUtils.censorSwears(action.getMessage(), blockedWords) : action.getMessage()),
-                        "{color}", color);
+            PaperLocale locale = HeavenChat.getInstance().getLocale();
+            String format = channel.getFormat();
+            if (!getPlayerId().equals(sender.getPlayerId()))
+            {
+                locale.sendMessage(getPlayer(), false, format, "{sender}", sender.getDisplayName(),
+                        "{message}", (filtered ? SwearUtils.censorSwears(message, blockedWords) : message));
+            }
+            else
+            {
+                locale.sendMessage(getPlayer(), false, format, "{sender}",
+                        getDisplayName(), "{message}", (filtered ? SwearUtils.censorSwears(message, blockedWords) :
+                                message));
             }
         });
-
     }
 
     public void sendPrivateMessage(ChannelMember target, String message)
     {
-        PrivateMessageEvent event = new PrivateMessageEvent(this, target, message);
-        HeavenChat.getInstance().getServer().getEventManager().fire(event).thenAccept((action) ->
+        Bukkit.getScheduler().scheduleSyncDelayedTask(HeavenChat.getInstance(), () ->
         {
-            if (action.getResult().isAllowed() && !hasIgnored(action.getTarget()))
+            PrivateMessageEvent event = new PrivateMessageEvent(this, target, message);
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled())
             {
-                Configuration config = HeavenChat.getInstance().getConfiguration();
-                Locale locale = HeavenChat.getInstance().getLocale();
-                String pmSend = config.getString("pm-formats.pm-send");
-                String pmReceive = config.getString("pm-formats.pm-receive");
-                locale.sendMessage(action.getSender().getPlayer(), action.getTarget().getPlayer(), false,
-                        pmReceive, "{sender}", action.getSender().getName(), "{receiver}",
-                        action.getTarget().getName(), "{message}", action.getMessage());
-                locale.sendMessage(action.getTarget().getPlayer(), action.getSender().getPlayer(), false,
-                        pmSend, "{sender}", action.getSender().getName(), "{receiver}",
-                        action.getTarget().getName(), "{message}",
-                        (filtered ? SwearUtils.censorSwears(action.getMessage(), blockedWords) : action.getMessage()));
-                setLastMember(action.getTarget());
+                return;
             }
-        });
 
+            if (hasIgnored(target))
+            {
+                return;
+            }
+
+            PaperConfiguration config = HeavenChat.getInstance().getConfiguration();
+            PaperLocale locale = HeavenChat.getInstance().getLocale();
+            String pmSend = config.getString("pm-formats.pm-send");
+            String pmReceive = config.getString("pm-formats.pm-receive");
+            locale.sendMessage(event.getSender().getPlayer(), false,
+                    pmReceive, "{sender}", event.getSender().getDisplayName(), "{receiver}",
+                    event.getTarget().getDisplayName(), "{message}", event.getMessage());
+            locale.sendMessage(event.getTarget().getPlayer(), false, pmSend, "{sender}",
+                    event.getSender().getDisplayName(), "{receiver}", event.getTarget().getDisplayName(), "{message}",
+                    (filtered ? SwearUtils.censorSwears(event.getMessage(), blockedWords) : event.getMessage()));
+            setLastMember(event.getTarget());
+        });
     }
 
     public void sendSpyMessage(ChannelMember sender, ChannelMember receiver, String message)
     {
-        SpyMessageEvent event = new SpyMessageEvent(this, sender, receiver, message);
-        HeavenChat.getInstance().getServer().getEventManager().fire(event).thenAccept((action) ->
+        Bukkit.getScheduler().scheduleSyncDelayedTask(HeavenChat.getInstance(), () ->
         {
-            if (action.getResult().isAllowed() && getPlayer().hasPermission("heavenchat.socialspy"))
+            SpyMessageEvent event = new SpyMessageEvent(sender, receiver, this, message);
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled())
             {
-                Configuration config = HeavenChat.getInstance().getConfiguration();
-                Locale locale = HeavenChat.getInstance().getLocale();
+                return;
+            }
+
+            if (getPlayer().hasPermission("heavenchat.socialspy"))
+            {
+                PaperConfiguration config = HeavenChat.getInstance().getConfiguration();
+                PaperLocale locale = HeavenChat.getInstance().getLocale();
                 String pmSpy = config.getString("pm-formats.pm-spy");
-                locale.sendMessage(action.getSpy().getPlayer(), false, pmSpy, "{sender}",
-                        action.getSender().getName(), "{receiver}", action.getTarget().getName(), "{message}",
-                        action.getMessage());
+                locale.sendMessage(event.getSpy().getPlayer(), false, pmSpy, "{sender}",
+                        event.getSender().getDisplayName(), "{receiver}", event.getTarget().getDisplayName(),
+                        "{message}", event.getMessage());
             }
         });
-
     }
 }

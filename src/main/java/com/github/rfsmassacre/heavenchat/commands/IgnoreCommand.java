@@ -1,45 +1,34 @@
-package com.github.rfsmassacre.heavenchat2.commands;
+package com.github.rfsmassacre.heavenchat.commands;
 
-import com.github.rfsmassacre.heavenchat2.HeavenChat;
-import com.github.rfsmassacre.heavenchat2.library.commands.VelocityCommand;
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
-import com.velocitypowered.api.command.CommandSource;
-import com.velocitypowered.api.proxy.Player;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
+import com.github.rfsmassacre.heavenlibrary.paper.commands.SimplePaperCommand;
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class IgnoreCommand extends VelocityCommand
+public class IgnoreCommand extends SimplePaperCommand
 {
 	public IgnoreCommand() 
 	{
-		super(HeavenChat.getInstance().getLocale(), "ignore");
+		super(HeavenChat.getInstance(), "ignore");
 	}
 
 	@Override
-	protected void onFail(CommandSource sender)
+	public void onRun(CommandSender sender, String... args)
 	{
-		locale.sendLocale(sender, "commands.no-perm");
-	}
-
-	@Override
-	protected void onInvalidArgs(CommandSource sender)
-	{
-		locale.sendLocale(sender, "commands.invalid-subcommand");
-	}
-
-	@Override
-	public void execute(Invocation invocation)
-	{
-		CommandSource sender = invocation.source();
-		String[] args = invocation.arguments();
 		if (sender instanceof Player player)
 		{
 			if (args.length >= 1)
 			{
 				if (args[0].equals("list"))
 				{
-					HeavenChat.getInstance().getServer().getScheduler().buildTask(HeavenChat.getInstance(), () ->
+					Bukkit.getScheduler().runTaskAsynchronously(HeavenChat.getInstance(), () ->
 					{
 						ChannelMember member = ChannelMember.getMember(player.getUniqueId());
 						List<UUID> ignoredIds = member.getIgnoredPlayerIds();
@@ -65,7 +54,7 @@ public class IgnoreCommand extends VelocityCommand
 							locale.sendLocale(sender, "ignore.list", "{list}",
 									String.join("&7, &r", names));
 						}
-					}).delay(0L, TimeUnit.SECONDS).schedule();
+					});
 
 					return;
 				}
@@ -80,19 +69,19 @@ public class IgnoreCommand extends VelocityCommand
 					}
 					else if (target.getPlayer().hasPermission("heavenchat.ignore.immune"))
 					{
-						locale.sendLocale(sender, target.getPlayer(), true, "ignore.cant-ignore",
-								"{target}", target.getName());
+						locale.sendLocale(sender, true, "ignore.cant-ignore", "{target}",
+								target.getDisplayName());
 					}
 					else if (!member.hasIgnored(target))
 					{
 						member.addIgnoredMember(target);
-						locale.sendLocale(sender, target.getPlayer(), true,"ignore.added",
-								"{target}", target.getName());
+						locale.sendLocale(sender, true,"ignore.added", "{target}",
+								target.getDisplayName());
 					}
 					else
 					{
-						locale.sendLocale(sender, target.getPlayer(), true,"ignore.already-added",
-								"{target}", target.getName());
+						locale.sendLocale(sender, true,"ignore.already-added", "{target}",
+								target.getDisplayName());
 					}
 				}
 				else
@@ -113,11 +102,9 @@ public class IgnoreCommand extends VelocityCommand
 	}
 	
 	@Override
-	public List<String> suggest(Invocation invocation)
+	public List<String> onTabComplete(CommandSender sender, String... args)
 	{
 		List<String> suggestions = new ArrayList<>();
-		CommandSource sender = invocation.source();
-		String[] args = invocation.arguments();
 		if (!(sender instanceof Player player))
 		{
 			return Collections.emptyList();
@@ -127,12 +114,12 @@ public class IgnoreCommand extends VelocityCommand
 		if (args.length == 1)
 		{
 			suggestions.add("list");
-			for (Player online : HeavenChat.getInstance().getServer().getAllPlayers())
+			for (Player online : HeavenChat.getInstance().getServer().getOnlinePlayers())
 			{
 				ChannelMember target = ChannelMember.getMember(online.getUniqueId());
 				if (!member.hasIgnored(target) && !player.equals(online))
 				{
-					suggestions.add(online.getUsername());
+					suggestions.add(online.getName());
 				}
 			}
 		}

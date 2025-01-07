@@ -1,20 +1,21 @@
-package com.github.rfsmassacre.heavenchat2.commands;
+package com.github.rfsmassacre.heavenchat.commands;
 
-import com.github.rfsmassacre.heavenchat2.HeavenChat;
-import com.github.rfsmassacre.heavenchat2.channels.Channel;
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
-import com.velocitypowered.api.command.CommandSource;
-import com.velocitypowered.api.proxy.Player;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenchat.channels.Channel;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
+import com.github.rfsmassacre.heavenlibrary.paper.commands.PaperCommand;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ChannelCommand extends HeavenCommand
+public class ChannelCommand extends PaperCommand
 {
 	public ChannelCommand() 
 	{
-		super("channel");
+		super(HeavenChat.getInstance(), "channel");
 
 		addSubCommand(new CurrentListCommand());
 		addSubCommand(new AvailableListCommand());
@@ -28,7 +29,7 @@ public class ChannelCommand extends HeavenCommand
 	/*
 	 * Current Channels List
 	 */
-	private class CurrentListCommand extends SubCommand
+	private class CurrentListCommand extends PaperSubCommand
 	{
 		public CurrentListCommand()
 		{
@@ -36,7 +37,7 @@ public class ChannelCommand extends HeavenCommand
 		}
 
 		@Override
-		protected void onRun(CommandSource sender, String[] args)
+		public void onRun(CommandSender sender, String[] args)
 		{
 			if (sender instanceof Player player)
 			{
@@ -49,7 +50,7 @@ public class ChannelCommand extends HeavenCommand
 					}
 				}
 				
-				locale.sendLocale(sender, "channel.current-list", "{channels}",
+				locale.sendLocale(sender, "channel.current-list", "{channels}", 
 						String.join("&f, ", currentChannels));
 				return;
 			}
@@ -59,7 +60,7 @@ public class ChannelCommand extends HeavenCommand
 		}
 
 		@Override
-		protected List<String> onTabComplete(CommandSource sender, String[] args)
+		public List<String> onTabComplete(CommandSender sender, String[] args)
 		{
 			List<String> suggestions = new ArrayList<>();
 			if (sender instanceof Player player)
@@ -83,7 +84,7 @@ public class ChannelCommand extends HeavenCommand
 	/*
 	 * Available Channels List
 	 */
-	private class AvailableListCommand extends SubCommand
+	private class AvailableListCommand extends PaperSubCommand
 	{
 		public AvailableListCommand()
 		{
@@ -91,7 +92,7 @@ public class ChannelCommand extends HeavenCommand
 		}
 
 		@Override
-		protected void onRun(CommandSource sender, String[] args)
+		public void onRun(CommandSender sender, String[] args)
 		{
 			if (sender instanceof Player player)
 			{
@@ -102,18 +103,18 @@ public class ChannelCommand extends HeavenCommand
 					if (channel.canJoin(member))
 						availableChannels.add(channel.getDisplayName());
 				}
-				
+
 				locale.sendLocale(member.getPlayer(), "channel.available-list", "{channels}",
 						String.join("&f, ", availableChannels));
 				return;
 			}
-			
+
 			//Send console error
 			locale.sendLocale(sender, "invalid.console");
 		}
 
 		@Override
-		protected List<String> onTabComplete(CommandSource sender, String[] args)
+		public List<String> onTabComplete(CommandSender sender, String[] args)
 		{
 			List<String> suggestions = new ArrayList<>();
 			if (sender instanceof Player player)
@@ -139,11 +140,11 @@ public class ChannelCommand extends HeavenCommand
 			return suggestions;
 		}
 	}
-	
+
 	/*
 	 * Channel Join
 	 */
-	private class JoinCommand extends SubCommand
+	private class JoinCommand extends PaperSubCommand
 	{
 		public JoinCommand()
 		{
@@ -151,7 +152,7 @@ public class ChannelCommand extends HeavenCommand
 		}
 
 		@Override
-		protected void onRun(CommandSource sender, String[] args)
+		public void onRun(CommandSender sender, String[] args)
 		{
 			if (sender instanceof Player player)
 			{
@@ -171,28 +172,28 @@ public class ChannelCommand extends HeavenCommand
 									channel.getDisplayName());
 							return;
 						}
-						
+
 						//No perm error
 						locale.sendLocale(sender, "channel.no-perm", "{channel}", channel.getDisplayName());
 						return;
 					}
-					
+
 					//Send channel not found error
 					locale.sendLocale(sender, "channel.not-found", "{arg}", args[1]);
 					return;
 				}
-				
+
 				//Invalid arg error
 				locale.sendLocale(sender, "error.invalid-args");
 				return;
 			}
-			
+
 			//Send console error
 			locale.sendLocale(sender, "error.console");
 		}
 
 		@Override
-		protected List<String> onTabComplete(CommandSource sender, String[] args)
+		public List<String> onTabComplete(CommandSender sender, String[] args)
 		{
 			List<String> suggestions = new ArrayList<>();
 			if (sender instanceof Player player)
@@ -218,11 +219,11 @@ public class ChannelCommand extends HeavenCommand
 			return suggestions;
 		}
 	}
-	
+
 	/*
 	 * Channel Leave
 	 */
-	private class LeaveCommand extends SubCommand
+	private class LeaveCommand extends PaperSubCommand
 	{
 		public LeaveCommand()
 		{
@@ -230,7 +231,7 @@ public class ChannelCommand extends HeavenCommand
 		}
 
 		@Override
-		protected void onRun(CommandSource sender, String[] args)
+		public void onRun(CommandSender sender, String[] args)
 		{
 			if (sender instanceof Player player)
 			{
@@ -238,7 +239,7 @@ public class ChannelCommand extends HeavenCommand
 				{
 					Channel channel = Channel.getChannel(args[1]);
 					ChannelMember member = ChannelMember.getMember(player.getUniqueId());
-					
+
 					if (channel != null)
 					{
 						if (channel.canLeave(member))
@@ -247,37 +248,37 @@ public class ChannelCommand extends HeavenCommand
 							channel.removeMemberId(player.getUniqueId());
 							locale.sendLocale(sender, "channel.left", "{channel}",
 									channel.getDisplayName());
-							
+
 							//Clear focused channel only if it's the one member is leaving
 							if (channel.equals(member.getFocusedChannel()))
 							{
 								member.setFocusedChannel(null);
 							}
-							
+
 							return;
 						}
-						
+
 						//No perm error
 						locale.sendLocale(sender, "channel.no-perm", "{channel}", channel.getDisplayName());
 						return;
 					}
-					
+
 					//Send channel not found error
 					locale.sendLocale(sender, "channel.not-found", "{arg}", args[1]);
 					return;
 				}
-				
+
 				//Invalid arg error
 				locale.sendLocale(sender, "error.invalid-args");
 				return;
 			}
-			
+
 			//Send console error
 			locale.sendLocale(sender, "error.console");
 		}
 
 		@Override
-		protected List<String> onTabComplete(CommandSource sender, String[] args)
+		public List<String> onTabComplete(CommandSender sender, String[] args)
 		{
 			List<String> suggestions = new ArrayList<>();
 			if (sender instanceof Player player)
@@ -303,11 +304,11 @@ public class ChannelCommand extends HeavenCommand
 			return suggestions;
 		}
 	}
-	
+
 	/*
 	 * Channel Kick
 	 */
-	private class KickCommand extends SubCommand
+	private class KickCommand extends PaperSubCommand
 	{
 		public KickCommand()
 		{
@@ -315,7 +316,7 @@ public class ChannelCommand extends HeavenCommand
 		}
 
 		@Override
-		protected void onRun(CommandSource sender, String[] args)
+		public void onRun(CommandSender sender, String[] args)
 		{
 			if (args.length >= 2)
 			{
@@ -339,7 +340,7 @@ public class ChannelCommand extends HeavenCommand
 				if (!channel.isMemberId(member.getPlayerId()))
 				{
 					//Give not in channel error
-					locale.sendLocale(sender, "channel.not-in-channel", "{member}", member.getName(),
+					locale.sendLocale(sender, "channel.not-in-channel", "{member}", member.getDisplayName(),
 							"{channel}", channel.getDisplayName());
 					return;
 				}
@@ -363,22 +364,22 @@ public class ChannelCommand extends HeavenCommand
 				//No perm error
 				locale.sendLocale(sender, "channel.no-perm", "{channel}", channel.getDisplayName());
 			}
-			
+
 			//Invalid arg error
 			locale.sendLocale(sender, "error.invalid-args");
 			return;
 		}
 
 		@Override
-		protected List<String> onTabComplete(CommandSource sender, String[] args)
+		public List<String> onTabComplete(CommandSender sender, String[] args)
 		{
 			List<String> suggestions = new ArrayList<>();
 			if (sender instanceof Player player)
 			{
 				if (args.length == 2)
 				{
-					suggestions.addAll(HeavenChat.getInstance().getServer().getAllPlayers().stream()
-							.map(Player::getUsername).toList());
+					suggestions.addAll(HeavenChat.getInstance().getServer().getOnlinePlayers().stream()
+							.map(Player::getName).toList());
 				}
 
 				if (args.length == 3)
@@ -402,11 +403,11 @@ public class ChannelCommand extends HeavenCommand
 			return suggestions;
 		}
 	}
-	
+
 	/*
 	 * Channel Add
 	 */
-	private class AddCommand extends SubCommand
+	private class AddCommand extends PaperSubCommand
 	{
 		public AddCommand()
 		{
@@ -414,7 +415,7 @@ public class ChannelCommand extends HeavenCommand
 		}
 
 		@Override
-		protected void onRun(CommandSource sender, String[] args)
+		public void onRun(CommandSender sender, String[] args)
 		{
 			if (args.length >= 3)
 			{
@@ -438,7 +439,7 @@ public class ChannelCommand extends HeavenCommand
 				if (channel.isMemberId(member.getPlayerId()))
 				{
 					//Give already in channel error
-					locale.sendLocale(sender, "channel.already-in-channel", "{member}", member.getName(),
+					locale.sendLocale(sender, "channel.already-in-channel", "{member}", member.getDisplayName(),
 							"{channel}", channel.getDisplayName());
 					return;
 				}
@@ -456,7 +457,7 @@ public class ChannelCommand extends HeavenCommand
 
 
 				//No perm error
-				locale.sendLocale(sender, "target-channel.no-perm", "{target}", member.getName(),
+				locale.sendLocale(sender, "target-channel.no-perm", "{target}", member.getDisplayName(),
 						"{channel}", channel.getDisplayName());
 			}
 
@@ -466,16 +467,16 @@ public class ChannelCommand extends HeavenCommand
 		}
 
 		@Override
-		protected List<String> onTabComplete(CommandSource sender, String[] args)
+		public List<String> onTabComplete(CommandSender sender, String[] args)
 		{
 			List<String> suggestions = new ArrayList<>();
 			if (sender instanceof Player player)
 			{
 				if (args.length == 2)
 				{
-					for (Player online : HeavenChat.getInstance().getServer().getAllPlayers())
+					for (Player online : HeavenChat.getInstance().getServer().getOnlinePlayers())
 					{
-						suggestions.add(online.getUsername());
+						suggestions.add(online.getName());
 					}
 				}
 
@@ -500,11 +501,11 @@ public class ChannelCommand extends HeavenCommand
 			return suggestions;
 		}
 	}
-	
+
 	/*
 	 * Channel Focus Command
 	 */
-	private class FocusCommand extends SubCommand
+	private class FocusCommand extends PaperSubCommand
 	{
 		public FocusCommand()
 		{
@@ -512,7 +513,7 @@ public class ChannelCommand extends HeavenCommand
 		}
 
 		@Override
-		protected void onRun(CommandSource sender, String[] args)
+		public void onRun(CommandSender sender, String[] args)
 		{
 			if (args.length >= 3)
 			{
@@ -539,22 +540,22 @@ public class ChannelCommand extends HeavenCommand
 					{
 						member.setFocusedChannel(channel);
 
-						locale.sendLocale(member.getPlayer(), member.getPlayer(), true, "channel.focused", "{channel}",
+						locale.sendLocale(member.getPlayer(), true, "channel.focused", "{channel}",
 								channel.getDisplayName());
-						locale.sendLocale(sender, member.getPlayer(), true, "channel.focuse-target",
-								"{target}", member.getName(), "{channel}", channel.getDisplayName());
+						locale.sendLocale(sender, true, "channel.focuse-target",
+								"{target}", member.getDisplayName(), "{channel}", channel.getDisplayName());
 						return;
 					}
 
 					//Already focused error
-					locale.sendLocale(sender, member.getPlayer(), true, "channel.already-focused-target", "{target}",
-							member.getName(), "{channel}", channel.getDisplayName());
+					locale.sendLocale(sender, true, "channel.already-focused-target", "{target}",
+							member.getDisplayName(), "{channel}", channel.getDisplayName());
 					return;
 				}
 
 				//No perm error
-				locale.sendLocale(sender, member.getPlayer(), true,  "channel.target-no-perm",
-						"{target}", member.getName(), "{channel}", channel.getDisplayName());
+				locale.sendLocale(sender, true,  "channel.target-no-perm",
+						"{target}", member.getDisplayName(), "{channel}", channel.getDisplayName());
 			}
 
 			//Invalid arg error
@@ -562,7 +563,7 @@ public class ChannelCommand extends HeavenCommand
 		}
 
 		@Override
-		protected List<String> onTabComplete(CommandSource sender, String[] args)
+		public List<String> onTabComplete(CommandSender sender, String[] args)
 		{
 			List<String> suggestions = new ArrayList<>();
 			if (sender instanceof Player player)

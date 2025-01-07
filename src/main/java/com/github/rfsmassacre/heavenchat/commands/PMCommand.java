@@ -1,39 +1,25 @@
-package com.github.rfsmassacre.heavenchat2.commands;
+package com.github.rfsmassacre.heavenchat.commands;
 
-import com.github.rfsmassacre.heavenchat2.HeavenChat;
-import com.github.rfsmassacre.heavenchat2.library.commands.VelocityCommand;
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
-import com.velocitypowered.api.command.CommandSource;
-import com.velocitypowered.api.proxy.Player;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
+import com.github.rfsmassacre.heavenlibrary.paper.commands.SimplePaperCommand;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-public class PMCommand extends VelocityCommand
+public class PMCommand extends SimplePaperCommand
 {
 	public PMCommand() 
 	{
-		super(HeavenChat.getInstance().getLocale(), "pm");
+		super(HeavenChat.getInstance(), "pm");
 	}
 
 	@Override
-	protected void onFail(CommandSource sender)
+	public void onRun(CommandSender sender, String... args)
 	{
-		locale.sendLocale(sender, "commands.no-perm");
-	}
-
-	@Override
-	protected void onInvalidArgs(CommandSource sender)
-	{
-		locale.sendLocale(sender, "commands.invalid-subcommand");
-	}
-
-	@Override
-	public void execute(Invocation invocation)
-	{
-		CommandSource sender = invocation.source();
-		String[] args = invocation.arguments();
 		if (sender instanceof Player player)
 		{
 			ChannelMember member = ChannelMember.getMember(player.getUniqueId());
@@ -47,8 +33,8 @@ public class PMCommand extends VelocityCommand
 				else
 				{
 					//Stop chatting with current member
-					locale.sendLocale(sender, member.getPlayer(), true, "pm.left", "{target}",
-							member.getFocusedMember().getName());
+					locale.sendLocale(sender, true, "pm.left", "{target}",
+							member.getFocusedMember().getDisplayName());
 					member.setFocusedMember(null);
 				}
 
@@ -56,13 +42,7 @@ public class PMCommand extends VelocityCommand
 			}
 			else if (args.length == 1)
 			{
-				Player targetPlayer = null;
-				Optional<Player> optional = HeavenChat.getInstance().getServer().getPlayer(args[0]);
-				if (optional.isPresent())
-				{
-					targetPlayer = optional.get();
-				}
-
+				Player targetPlayer = Bukkit.getPlayer(args[0]);
 				if (targetPlayer != null)
 				{
 					ChannelMember target = ChannelMember.getMember(targetPlayer.getUniqueId());
@@ -71,17 +51,19 @@ public class PMCommand extends VelocityCommand
 						locale.sendLocale(sender, true, "pm.self");
 						return;
 					}
+
 					if (!target.hasIgnored(member))
 					{
 						member.setFocusedMember(target);
-						locale.sendLocale(sender, target.getPlayer(), true, "pm.chatting",
-								"{target}", target.getName());
+						locale.sendLocale(sender, true, "pm.chatting", "{target}",
+								target.getDisplayName());
 					}
+
 					else
 					{
 						//Send ignored error
-						locale.sendLocale(sender, target.getPlayer(), true, "pm.ignored",
-								"{target}", target.getName());
+						locale.sendLocale(sender, true, "pm.ignored", "{target}",
+								target.getDisplayName());
 					}
 				}
 				else
@@ -89,17 +71,12 @@ public class PMCommand extends VelocityCommand
 					//Send not found error
 					locale.sendLocale(sender, "error.not-found", "{arg}", args[0]);
 				}
+
 				return;
 			}
 			else
 			{
-				Player targetPlayer = null;
-				Optional<Player> optional = HeavenChat.getInstance().getServer().getPlayer(args[0]);
-				if (optional.isPresent())
-				{
-					targetPlayer = optional.get();
-				}
-
+				Player targetPlayer = Bukkit.getPlayer(args[0]);
 				if (targetPlayer != null)
 				{
 					ChannelMember target = ChannelMember.getMember(targetPlayer.getUniqueId());
@@ -108,6 +85,7 @@ public class PMCommand extends VelocityCommand
 						locale.sendLocale(sender, "pm.self");
 						return;
 					}
+
 					if (!target.hasIgnored(member))
 					{
 						//Convert args after the first arg as message
@@ -129,8 +107,8 @@ public class PMCommand extends VelocityCommand
 					else
 					{
 						//Send ignored error
-						locale.sendLocale(sender, target.getPlayer(), true, "pm.ignored",
-								"{target}", target.getName());
+						locale.sendLocale(sender, true, "pm.ignored", "{target}",
+								target.getDisplayName());
 					}
 				}
 				else
@@ -138,6 +116,7 @@ public class PMCommand extends VelocityCommand
 					//Send not found error
 					locale.sendLocale(sender, "error.not-found", "{arg}", args[0]);
 				}
+
 				return;
 			}
 		}
@@ -147,16 +126,16 @@ public class PMCommand extends VelocityCommand
 	}
 
 	@Override
-	public List<String> suggest(Invocation invocation)
+	public List<String> onTabComplete(CommandSender sender, String... args)
 	{
 		List<String> suggestions = new ArrayList<>();
-		if (invocation.arguments().length == 1)
+		if (args.length == 1)
 		{
-			for (Player player : HeavenChat.getInstance().getServer().getAllPlayers())
+			for (Player player : HeavenChat.getInstance().getServer().getOnlinePlayers())
 			{
-				if (!invocation.source().equals(player))
+				if (!sender.equals(player))
 				{
-					suggestions.add(player.getUsername());
+					suggestions.add(player.getName());
 				}
 			}
 		}

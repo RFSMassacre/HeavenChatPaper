@@ -32,7 +32,7 @@ channel:
   not-found: "&f{arg} Channel &cnot found!"
   member-not-found: "&f{arg} &cis not a real username."
   focused: "&aYou're chatting in the &f{channel}&a."
-  focuse-target: "&eYou have made &f{target} &efocus &f{channel}&e."
+  focused-target: "&eYou have made &f{target} &efocus &f{channel}&e."
   already-focused: "&cYou're already chatting in the &f{channel}&c."
   already-focused-target: "&f{target} &cis already chatting in the &f{channel}&c."
   already-in-channel: "&f{member} &7is already in the &f{channel}&7."

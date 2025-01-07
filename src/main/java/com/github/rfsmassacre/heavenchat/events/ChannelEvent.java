@@ -1,35 +1,49 @@
-package com.github.rfsmassacre.heavenchat2.events;
+package com.github.rfsmassacre.heavenchat.events;
 
-import com.github.rfsmassacre.heavenchat2.channels.Channel;
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
-import com.velocitypowered.api.event.ResultedEvent;
-import com.velocitypowered.api.event.ResultedEvent.GenericResult;
+import com.github.rfsmassacre.heavenchat.channels.Channel;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
 import lombok.Getter;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class ChannelEvent implements ResultedEvent<GenericResult>
+@Getter
+public abstract class ChannelEvent extends Event implements Cancellable
 {
-    @Getter
-    private final ChannelMember member;
-    @Getter
-    private final Channel channel;
+    //Handler List
+    private static final HandlerList HANDLERS = new HandlerList();
 
-    private GenericResult result = GenericResult.allowed(); // Allowed by default
+    @Override
+    public @NotNull HandlerList getHandlers()
+    {
+        return HANDLERS;
+    }
+    public static HandlerList getHandlerList()
+    {
+        return HANDLERS;
+    }
+
+    private final ChannelMember member;
+    private final Channel channel;
+    private boolean cancel;
 
     public ChannelEvent(ChannelMember member, Channel channel)
     {
         this.member = member;
         this.channel = channel;
+        this.cancel = false;
     }
 
     @Override
-    public GenericResult getResult()
+    public boolean isCancelled()
     {
-        return result;
+        return cancel;
     }
 
     @Override
-    public void setResult(GenericResult result)
+    public void setCancelled(boolean cancel)
     {
-        this.result = result;
+        this.cancel = cancel;
     }
 }

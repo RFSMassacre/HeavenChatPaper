@@ -1,4 +1,42 @@
-name: HevenChat
+name: HeavenChat
 version: '${project.version}'
-main: com.github.rfsmassacre.hevenchat.HevenChatPaper
+main: com.github.rfsmassacre.heavenchat.HeavenChat
 api-version: '1.21'
+depend:
+  - HeavenLibrary
+commands:
+  heavenchat:
+    usage: "/heavenchat"
+    aliases:
+      - hc
+  channel:
+    usage: "/channel"
+    aliases:
+      - ch
+  pm:
+    usage: "/pm"
+    aliases:
+      - msg
+      - tell
+  reply:
+    usage: "/reply"
+    aliases:
+      - r
+  ignore:
+    usage: "/ignore"
+    aliases:
+      - block
+  unignore:
+    usage: "/unignore"
+    aliases:
+      - unblock
+  filter:
+    usage: "/filter"
+    aliases:
+      - tf
+  spy:
+    usage: "/spy"
+  broadcast:
+    usage: "/broadcast"
+    aliases:
+      - alert

@@ -1,39 +1,22 @@
-package com.github.rfsmassacre.heavenchat2.commands;
+package com.github.rfsmassacre.heavenchat.commands;
 
-import com.github.rfsmassacre.heavenchat2.HeavenChat;
-import com.github.rfsmassacre.heavenchat2.channels.Channel;
-import com.github.rfsmassacre.heavenchat2.library.commands.VelocityCommand;
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
-import com.velocitypowered.api.command.CommandSource;
-import com.velocitypowered.api.proxy.Player;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenchat.channels.Channel;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
+import com.github.rfsmassacre.heavenlibrary.paper.commands.SimplePaperCommand;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-import java.util.Collections;
-import java.util.List;
-
-public class ReplyCommand extends VelocityCommand
+public class ReplyCommand extends SimplePaperCommand
 {
 	public ReplyCommand() 
 	{
-		super(HeavenChat.getInstance().getLocale(), "reply");
+		super(HeavenChat.getInstance(), "reply");
 	}
 
 	@Override
-	protected void onFail(CommandSource sender)
+	public void onRun(CommandSender sender, String... args)
 	{
-		locale.sendLocale(sender, "commands.no-perm");
-	}
-
-	@Override
-	protected void onInvalidArgs(CommandSource sender)
-	{
-		locale.sendLocale(sender, "commands.invalid-subcommand");
-	}
-
-	@Override
-	public void execute(Invocation invocation)
-	{
-		CommandSource sender = invocation.source();
-		String[] args = invocation.arguments();
 		if (sender instanceof Player player)
 		{
 			ChannelMember member = ChannelMember.getMember(player.getUniqueId());
@@ -42,11 +25,11 @@ public class ReplyCommand extends VelocityCommand
 			if (member.getLastMemberId() == null)
 			{
 				locale.sendLocale(sender,"pm.not-chatting");
-				return;
+				return ;
 			}
 
-
 			ChannelMember target = member.getLastMember();
+
 			//Send not there error
 			if (target == null)
 			{
@@ -57,11 +40,11 @@ public class ReplyCommand extends VelocityCommand
 						Channel channel = member.getFocusedChannel();
 
 						//Get offline display name and channel name to properly tell user the target left
-						String targetName = lastMember.getName();
+						String targetName = lastMember.getDisplayName();
 						String channelName = (channel != null ? channel.getDisplayName() : "");
 
-						locale.sendLocale(member.getPlayer(), target.getPlayer(), true, "pm.target-left",
-								"{target}", targetName, "{channel}", channelName);
+						locale.sendLocale(member.getPlayer(), true, "pm.target-left", "{target}",
+								targetName, "{channel}", channelName);
 					}
 
 					member.setFocusedMember(null);
@@ -81,8 +64,7 @@ public class ReplyCommand extends VelocityCommand
 			//Send ignored error
 			if (target.hasIgnored(member))
 			{
-				locale.sendLocale(sender, target.getPlayer(), true, "pm.ignored", "{target}",
-						target.getName());
+				locale.sendLocale(sender, true, "pm.ignored", "{target}", target.getDisplayName());
 				return;
 			}
 
@@ -91,15 +73,15 @@ public class ReplyCommand extends VelocityCommand
 			{
 				if (member.getFocusedMember() != null)
 				{
-					locale.sendLocale(sender, target.getPlayer(), true, "pm.left", "{target}",
-							member.getFocusedMember().getName());
+					locale.sendLocale(sender, true, "pm.left", "{target}",
+							member.getFocusedMember().getDisplayName());
 					member.setFocusedMember(null);
 				}
 				else
 				{
 					member.setFocusedMember(target);
-					locale.sendLocale(sender, target.getPlayer(), true, "pm.chatting", "{target}",
-							target.getName());
+					locale.sendLocale(sender, true, "pm.chatting", "{target}",
+							target.getDisplayName());
 				}
 			}
 			//Send message to last member
@@ -107,16 +89,11 @@ public class ReplyCommand extends VelocityCommand
 			{
 				target.sendPrivateMessage(member, String.join(" ", args));
 			}
+
 			return;
 		}
 
 		//Send console error
 		locale.sendLocale(sender, "error.console");
-	}
-	
-	@Override
-	public List<String> suggest(Invocation invocation)
-	{
-		return Collections.emptyList();
 	}
 }

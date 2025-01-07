@@ -1,27 +1,24 @@
-package com.github.rfsmassacre.heavenchat2.commands;
+package com.github.rfsmassacre.heavenchat.commands;
 
-import com.github.rfsmassacre.heavenchat2.library.configs.Locale;
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
-import com.velocitypowered.api.command.CommandSource;
-import com.velocitypowered.api.proxy.Player;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
+import com.github.rfsmassacre.heavenlibrary.interfaces.LocaleData;
+import com.github.rfsmassacre.heavenlibrary.paper.commands.PaperCommand;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class FilterCommand extends HeavenCommand
+public class FilterCommand extends PaperCommand
 {
 	public FilterCommand()
 	{
-		super("filter");
-
-		addSubCommand(new ToggleCommand());
-		addSubCommand(new AddCommand());
-		addSubCommand(new RemoveCommand());
-		addSubCommand(new ListCommand());
+		super(HeavenChat.getInstance(), "filter");
 	}
 
-	private class ToggleCommand extends SubCommand
+	private class ToggleCommand extends PaperSubCommand
 	{
 		public ToggleCommand()
 		{
@@ -29,7 +26,7 @@ public class FilterCommand extends HeavenCommand
 		}
 
 		@Override
-		protected void onRun(CommandSource sender, String[] args)
+		public void onRun(CommandSender sender, String[] args)
 		{
 			if (sender instanceof Player player)
 			{
@@ -53,13 +50,13 @@ public class FilterCommand extends HeavenCommand
 		}
 
 		@Override
-		protected List<String> onTabComplete(CommandSource sender, String[] args)
+		public List<String> onTabComplete(CommandSender sender, String[] args)
 		{
 			return Collections.emptyList();
 		}
 	}
 
-	private class AddCommand extends SubCommand
+	private class AddCommand extends PaperSubCommand
 	{
 		public AddCommand()
 		{
@@ -67,7 +64,7 @@ public class FilterCommand extends HeavenCommand
 		}
 
 		@Override
-		protected void onRun(CommandSource sender, String[] args)
+		public void onRun(CommandSender sender, String[] args)
 		{
 			if (sender instanceof Player player)
 			{
@@ -77,7 +74,7 @@ public class FilterCommand extends HeavenCommand
 					return;
 				}
 
-				String word = Locale.stripColors(args[1]);
+				String word = LocaleData.stripColors(args[1]);
 				ChannelMember member = ChannelMember.getMember(player.getUniqueId());
 				if (member.isBlockedWord(word))
 				{
@@ -97,13 +94,13 @@ public class FilterCommand extends HeavenCommand
 		}
 
 		@Override
-		protected List<String> onTabComplete(CommandSource sender, String[] args)
+		public List<String> onTabComplete(CommandSender sender, String[] args)
 		{
 			return Collections.emptyList();
 		}
 	}
 
-	private class RemoveCommand extends SubCommand
+	private class RemoveCommand extends PaperSubCommand
 	{
 		public RemoveCommand()
 		{
@@ -111,7 +108,7 @@ public class FilterCommand extends HeavenCommand
 		}
 
 		@Override
-		protected void onRun(CommandSource sender, String[] args)
+		public void onRun(CommandSender sender, String[] args)
 		{
 			if (sender instanceof Player player)
 			{
@@ -121,7 +118,7 @@ public class FilterCommand extends HeavenCommand
 					return;
 				}
 
-				String word = Locale.stripColors(args[1]);
+				String word = LocaleData.stripColors(args[1]);
 				ChannelMember member = ChannelMember.getMember(player.getUniqueId());
 				if (!member.isBlockedWord(word))
 				{
@@ -141,13 +138,13 @@ public class FilterCommand extends HeavenCommand
 		}
 
 		@Override
-		protected List<String> onTabComplete(CommandSource sender, String[] args)
+		public List<String> onTabComplete(CommandSender sender, String[] args)
 		{
 			return Collections.emptyList();
 		}
 	}
 
-	private class ListCommand extends SubCommand
+	private class ListCommand extends PaperSubCommand
 	{
 		public ListCommand()
 		{
@@ -155,7 +152,7 @@ public class FilterCommand extends HeavenCommand
 		}
 
 		@Override
-		protected void onRun(CommandSource sender, String[] args)
+		public void onRun(CommandSender sender, String[] args)
 		{
 			if (sender instanceof Player player)
 			{
@@ -174,12 +171,6 @@ public class FilterCommand extends HeavenCommand
 
 			//Console error
 			locale.sendLocale(sender, "error.console");
-		}
-
-		@Override
-		protected List<String> onTabComplete(CommandSource sender, String[] args)
-		{
-			return Collections.emptyList();
 		}
 	}
 }

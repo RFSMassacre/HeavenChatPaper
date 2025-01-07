@@ -1,39 +1,25 @@
-package com.github.rfsmassacre.heavenchat2.commands;
+package com.github.rfsmassacre.heavenchat.commands;
 
-import com.github.rfsmassacre.heavenchat2.HeavenChat;
-import com.github.rfsmassacre.heavenchat2.library.commands.VelocityCommand;
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
-import com.velocitypowered.api.command.CommandSource;
-import com.velocitypowered.api.proxy.Player;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
+import com.github.rfsmassacre.heavenlibrary.paper.commands.SimplePaperCommand;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class UnignoreCommand extends VelocityCommand
+public class UnignoreCommand extends SimplePaperCommand
 {
 	public UnignoreCommand() 
 	{
-		super(HeavenChat.getInstance().getLocale(), "unignore");
+		super(HeavenChat.getInstance(), "unignore");
 	}
 
 	@Override
-	protected void onFail(CommandSource sender)
+	public void onRun(CommandSender sender, String... args)
 	{
-		locale.sendLocale(sender, "commands.no-perm");
-	}
-
-	@Override
-	protected void onInvalidArgs(CommandSource sender)
-	{
-		locale.sendLocale(sender, "commands.invalid-subcommand");
-	}
-
-	@Override
-	public void execute(Invocation invocation)
-	{
-		CommandSource sender = invocation.source();
-		String[] args = invocation.arguments();
 		if (sender instanceof Player player)
 		{
 			if (args.length >= 1)
@@ -49,13 +35,13 @@ public class UnignoreCommand extends VelocityCommand
 					else if (member.hasIgnored(target))
 					{
 						member.removeIgnoredMember(target);
-						locale.sendLocale(sender, target.getPlayer(), true,"ignore.removed",
-								"{target}", target.getName());
+						locale.sendLocale(sender, true,"ignore.removed", "{target}",
+								target.getDisplayName());
 					}
 					else
 					{
-						locale.sendLocale(sender, target.getPlayer(), true,"ignore.not-ignored",
-								"{target}", target.getName());
+						locale.sendLocale(sender, true,"ignore.not-ignored", "{target}",
+								target.getDisplayName());
 					}
 				}
 				else
@@ -76,10 +62,8 @@ public class UnignoreCommand extends VelocityCommand
 	}
 
 	@Override
-	public List<String> suggest(Invocation invocation)
+	public List<String> onTabComplete(CommandSender sender, String... args)
 	{
-		CommandSource sender = invocation.source();
-		String[] args = invocation.arguments();
 		List<String> suggestions = new ArrayList<>();
 		if (!(sender instanceof Player player))
 		{
@@ -89,7 +73,7 @@ public class UnignoreCommand extends VelocityCommand
 		if (args.length == 2)
 		{
 			ChannelMember member = ChannelMember.getMember(player.getUniqueId());
-			for (Player online : HeavenChat.getInstance().getServer().getAllPlayers())
+			for (Player online : HeavenChat.getInstance().getServer().getOnlinePlayers())
 			{
 				ChannelMember target = ChannelMember.getMember(online.getUniqueId());
 				if (target == null)
@@ -99,7 +83,7 @@ public class UnignoreCommand extends VelocityCommand
 
 				if (member.hasIgnored(target) && !player.equals(online))
 				{
-					suggestions.add(player.getUsername());
+					suggestions.add(player.getName());
 				}
 			}
 		}

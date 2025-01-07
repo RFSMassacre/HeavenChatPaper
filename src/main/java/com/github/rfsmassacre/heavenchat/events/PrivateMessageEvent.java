@@ -1,6 +1,6 @@
-package com.github.rfsmassacre.heavenchat2.events;
+package com.github.rfsmassacre.heavenchat.events;
 
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
 
 public class PrivateMessageEvent extends MessageEvent
 {

@@ -1,14 +1,13 @@
-package com.github.rfsmassacre.heavenchat2.utils;
+package com.github.rfsmassacre.heavenchat.utils;
 
-import com.github.rfsmassacre.heavenchat2.HeavenChat;
-import com.github.rfsmassacre.heavenchat2.library.configs.Locale;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import org.bukkit.Bukkit;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class LogUtil
 {
@@ -28,13 +27,12 @@ public class LogUtil
     {
         DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
         Date date = new Date();
-        HeavenChat.getInstance().getTextManager().write(dateFormat.format(date) + ".txt", LOG);
+        HeavenChat.getInstance().getLogManager().write(dateFormat.format(date) + ".txt", LOG);
         LOG.clear();
     }
 
     public static void writeAsync()
     {
-        HeavenChat.getInstance().getServer().getScheduler().buildTask(HeavenChat.getInstance(), LogUtil::write)
-                .delay(1L, TimeUnit.SECONDS).schedule();
+        Bukkit.getScheduler().runTaskAsynchronously(HeavenChat.getInstance(), LogUtil::write);
     }
 }

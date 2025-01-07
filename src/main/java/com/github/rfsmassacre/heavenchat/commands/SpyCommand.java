@@ -1,38 +1,21 @@
-package com.github.rfsmassacre.heavenchat2.commands;
+package com.github.rfsmassacre.heavenchat.commands;
 
-import com.github.rfsmassacre.heavenchat2.HeavenChat;
-import com.github.rfsmassacre.heavenchat2.channels.Channel;
-import com.github.rfsmassacre.heavenchat2.library.commands.VelocityCommand;
-import com.github.rfsmassacre.heavenchat2.players.ChannelMember;
-import com.velocitypowered.api.command.CommandSource;
-import com.velocitypowered.api.proxy.Player;
+import com.github.rfsmassacre.heavenchat.HeavenChat;
+import com.github.rfsmassacre.heavenchat.players.ChannelMember;
+import com.github.rfsmassacre.heavenlibrary.paper.commands.SimplePaperCommand;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-import java.util.Collections;
-import java.util.List;
-
-public class SpyCommand extends VelocityCommand
+public class SpyCommand extends SimplePaperCommand
 {
 	public SpyCommand() 
 	{
-		super(HeavenChat.getInstance().getLocale(), "spy");
+		super(HeavenChat.getInstance(), "spy");
 	}
 
 	@Override
-	protected void onFail(CommandSource sender)
+	public void onRun(CommandSender sender, String... args)
 	{
-		locale.sendLocale(sender, "commands.no-perm");
-	}
-
-	@Override
-	protected void onInvalidArgs(CommandSource sender)
-	{
-		locale.sendLocale(sender, "commands.invalid-subcommand");
-	}
-
-	@Override
-	public void execute(Invocation invocation)
-	{
-		CommandSource sender = invocation.source();
 		if (!sender.hasPermission("heavenchat.spy"))
 		{
 			onFail(sender);
@@ -58,11 +41,5 @@ public class SpyCommand extends VelocityCommand
 
 		//Send console error
 		locale.sendLocale(sender, "error.console");
-	}
-	
-	@Override
-	public List<String> suggest(Invocation invocation)
-	{
-		return Collections.emptyList();
 	}
 }
