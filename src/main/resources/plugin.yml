@@ -1,0 +1,4 @@
+name: HevenChat
+version: '${project.version}'
+main: com.github.rfsmassacre.hevenchat.HevenChatPaper
+api-version: '1.21'

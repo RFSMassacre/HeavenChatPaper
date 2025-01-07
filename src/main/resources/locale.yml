@@ -1,0 +1,128 @@
+################################################################
+###                HeavenChat 2 by RFSMassacre               ###
+################################################################
+
+prefix: "&bHeaven&3Chat&f &7&l|&r "
+
+login:
+  first-login-message: "&6[&e+&6] &7{player}&r &ehas joined the network for the first time."
+  login-message: "&2[&a+&2] &r{player}&r &ahas joined the network."
+  logout-message: "&4[&c-&4] &r{player}&r &chas left the network."
+
+broadcast:
+  no-args: "&cNo announcement was provided!"
+
+commands:
+  reload: "&ePlugin has been reloaded."
+  player-only: "&cOnly players can run this command."
+  no-perm: "&cNo permission!"
+  invalid-subcommand: "&cInvalid subcommand!"
+  invalid-args: "&cInvalid arguments: /{command}"
+  no-player: "&f{player} &cnot found!"
+  no-data: "&cPlayer data not found! Contact staff if this persists."
+
+channel:
+  available-list: "&aAvailable Channels&2: &f{channels}"
+  current-list: "&bCurrent Channels&3: &f{channels}"
+  joined: "&aYou have joined the &f{channel}&a."
+  left: "&cYou have left the &f{channel}&c."
+  added: "&2You have been added to the &f{channel}&2."
+  kicked: "&4You have been kicked from the &f{channel}&4."
+  not-in-channel: "&cYou have not joined the &f{channel}&c."
+  not-found: "&f{arg} Channel &cnot found!"
+  member-not-found: "&f{arg} &cis not a real username."
+  focused: "&aYou're chatting in the &f{channel}&a."
+  focuse-target: "&eYou have made &f{target} &efocus &f{channel}&e."
+  already-focused: "&cYou're already chatting in the &f{channel}&c."
+  already-focused-target: "&f{target} &cis already chatting in the &f{channel}&c."
+  already-in-channel: "&f{member} &7is already in the &f{channel}&7."
+  no-perm: "&cYou do not have permission for the &f{channel}&c."
+  target-no-perm: "&f{target} &cdoes not have permission for the &f{channel}&c."
+  invalid-args: "&7Invalid arguments. Type &e/ch help &7for a list of options."
+  list: "&7Online Members: &r{members}"
+  no-proximity: "&cThere are no nearby players to talk to."
+
+channel-notify:
+  joined: "&f{member} &ahas joined the &f{channel}&a."
+  left: "&f{member} &chas left the &f{channel}&c."
+  kicked: "&f{member} &4has been kicked from the &f{channel}&4."
+
+pm:
+  chatting: "&aYou're now chatting with &f%luckperms_prefix%&f%player_displayname%&r."
+  not-chatting: "&cYou're not chatting with anyone."
+  self: "&cYou cannot chat with yourself. :("
+  left: "&cYou stopped chatting with &f%luckperms_prefix%&f%player_displayname%&r."
+  ignored: "&f%luckperms_prefix%&f%player_displayname%&r is ignoring you."
+  target-left: "&f%luckperms_prefix%&f%player_displayname%&r is no longer online, switching to &f{channel}&c..."
+  invalid-args: "&7Invalid arguments. Type &e/pm help &7for a list of options."
+
+social-spy:
+  enabled: "&eSocial-spy is now enabled. All PMs are visible."
+  disabled: "&7Social-spy is now disabled."
+
+ignore:
+  added: "&aYou are now ignoring &f{target}&a's messages."
+  removed: "&eYou are no longer ignoring &f{target}&e's messages."
+  already-added: "&cYou are already ignoring &f{target}&c."
+  not-ignored: "&cYou are not ignoring &f{target}&c."
+  cant-self: "&cYou cannot ignore yourself."
+  cant-ignore: "&f{target}&c is staff and cannot be ignored."
+  invalid-args: "&7Invalid arguments. Type &e/ignore help &7for a list of options."
+  list: "&7You are ignoring {list}&7."
+  empty: "&7You are not ignoring anyone right now."
+
+nickname:
+  current-nick: "&eYour current nickname is &f{nickname}&e."
+  taken: "&f{nickname}&c is taken by &f{player}&c."
+  no-nick: "&cYou currently have no nickname."
+  no-nick-others: "&f{target}&c has no nickname."
+  wrong-size: "&cNicknames must be between {min} and {max} characters."
+  update-nick: "&aYour new nickname is &f{nickname}&a."
+  update-nick-others: "&f{target}&a's new nickname is &f{nickname}&a."
+  clear-nick: "&6Your nickname has been cleared."
+  clear-nick-others: "&f{target}&6's nickname has been cleared."
+  invalid-args: "&7Invalid arguments. Type &e/nick help &7for a list of options."
+
+realname:
+  current-nick: "&f{target}&a's nickname is &f{nickname}&a."
+  no-nick: "&f{arg} &cis not anyone's nickname."
+  invalid-args: "&7Invalid arguments. Type &e/realname help &7for a list of options."
+
+filter:
+  profanity:
+    enabled: "&aYou have enabled your profanity filter."
+    disabled: "&6You have disable your profanity filter."
+  flood: "&cYou cannot chat for another &e{time} &cseconds."
+  repetition: "&cYou cannot send the same (or similar) messages."
+  personal:
+    added: "&aYou have blocked the word &f{word}&a."
+    removed: "&aYou have unblocked the word &f{word}&a."
+    already-added: "&f{word} &cis already blocked."
+    not-blocked: "&cYou do not have &f{word} &cblocked."
+    list: "&7Block words: &f{list}&7."
+    empty: "&7You have no blocked words."
+  invalid-args: "&7Invalid arguments. Type &e/filter help &7for a list of options."
+
+error:
+  no-channel: "&cYou are not chatting in a channel. Join one from &e/ch list&c."
+  no-pm: "&cThe player you were chatting with is now offline. Switching to default channel..."
+  not-found: "&f{arg} &cnot found or has never logged on before."
+  not-online: "&f{arg} &cis not online!"
+  invalid-args: "&7Invalid arguments. Type &e/hc help &7for a list of commands."
+  no-perm: "&cYou do not have permission for this command."
+  console: "&cOnly players can use this command."
+
+admin:
+  info: "&aRunning &e&lHeaven&b&lChat &e{version}&a."
+  reload: "&aSuccessfully reloaded &e&lHeaven&b&lChat&a."
+  purge: "&7Successfully purged all broken player files."
+  invalid-args: "&7Invalid arguments. Type &e/hc help &7for a list of options."
+
+help:
+  channel: "&7Chat Channel Commands&8:\n &8 • &3/ch &7List joined channels.\n &8 • &3/ch list &7List available channels.\n &8 • &3/ch join <channel> &7Join chat channel.\n &8 • &3/ch leave <channel> &7Leave chat channel.\n &8 • &3/<channel> &7Focus chat to channel."
+  nickname: "&7Nickname Commands&8:\n &8 • &3/nick &7Show current nickname.\n &8 • &3/nick <nickname> &7Update nickname.\n &8 • &3/nick clear &7Clear nickname."
+  ignore: "&7Ignore Commands&8:\n &8 •&3/ignore list &7List ignored players.\n &8 •&3/ignore <player> &7Ignore player.\n &8 •&3/unignore <player> &7Unignore player."
+  pm: "&7Private Message Commands&8:\n &8 •&3/pm &7Leave current PM.\n &8 •&3/pm <player> &7Focus chat to player.\n &8 •&3/pm <player> <message> &7Send player a private message."
+
+execute:
+  invalid-args: "&7Invalid arguments."

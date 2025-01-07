@@ -1,0 +1,175 @@
+################################################################
+###                HeavenChat 2 by RFSMassacre               ###
+################################################################
+
+enable-join-messages: true
+enable-chat-logging: true
+log-interval: 60
+
+#Default channel every new player auto-focuses to
+default-channel: "global"
+
+#Settings for auto-focusing channels when switching servers
+force-focus-channels: true
+ignored-channels:
+  - "staff"
+
+#Range of local channels
+local-range: 128
+
+#Sound of ping (Use 1.8 names so it can be compatible with all versions.)
+ping:
+  enabled: true
+  sound: "ITEM_PICKUP"
+  volume: 1.0
+  pitch: 0.4
+
+highlight:
+  color: "&e"
+  mention: true
+  keywords:
+    - "help"
+    - "staff"
+
+rank-colors:
+  - "owner &e"
+  - "admin &c"
+  - "mod &b"
+  - "helper &a"
+
+commands:
+  - "ban"
+  - "kick"
+  - "mute"
+  - "warn"
+  - "kick"
+  - "op"
+  - "deop"
+
+servers:
+  discord:
+    prefix: "&1[&9Discord&1] "
+    color: "&6"
+    channel: "global"
+  hub:
+    prefix: "&6[&eHub&6] "
+    color: "&e"
+    channel: "global"
+  faction:
+    prefix: "&2[&aFactions&2] "
+    color: "&2"
+    channel: "server"
+  creative:
+    prefix: "&3[&bCreative&3] "
+    color: "&3"
+    channel: "server"
+  games:
+    prefix: "&4[&cGames&4] "
+    color: "&4"
+    channel: "server"
+
+pm-formats:
+  pm-send: "&6You &2&l»&r &f%luckperms_prefix%&f%player_displayname%&r&5: &d{message}"
+  pm-receive: "&f%luckperms_prefix%&f%player_displayname%&r &c&l»&r &6You&5: &d{message}"
+  pm-spy: "&f{sender}&r &7&l»&r &f{receiver}&r&8: &7{message}"
+
+list-format:
+  no-staff-online: "&cNo staff is currently online."
+  no-players-online: "&cNone currently "
+
+nicknames:
+  prefix: "&f●"
+  min-length: 3
+  max-length: 16
+
+display-name: "{prefix}{suffix}{name}"
+
+#In Minutes
+afk:
+  timeout: -1
+  cooldown: 10
+
+threads:
+  afk:
+    delay: 1
+    interval: 1
+  channel:
+    delay: 1
+    interval: 1
+
+filters:
+  profanity-filter:
+    enabled: true
+    #Out of 100
+    block-percent: 70
+    censor: '*'
+  flood-filter:
+    enabled: true
+    #In seconds
+    message-cooldown: 3
+    #In minutes
+    afk-cooldown: 10
+  repetition-filter:
+    enabled: true
+    #Out of 100
+    block-percent: 80
+  character-filter:
+    enabled: true
+  word-length-filter:
+    enable: true
+    limit: 16
+  caps-filter:
+    enabled: true
+    limit: 6
+  ip-filter:
+    enabled: true
+    replace: "<IP blocked>"
+  domain-filter:
+    enabled: true
+    replace: "<domain blocked>"
+
+blocked-words:
+  - arsehole
+  - asshole
+  - fuck
+  - shit
+  - bitch
+  - piss
+  - pussy
+  - cock
+  - dick
+  - cum
+  - cunt
+  - jizz
+  - blowjob
+  - rimjob
+  - wanker
+  - douche
+  - tits
+  - titties
+  - nigger
+  - nigga
+  - chode
+  - whore
+  - slut
+  - skank
+  - bastard
+  - buttplug
+  - dildo
+  - chink
+  - spick
+  - fag
+  - dike
+  - dyke
+  - handjob
+  - thot
+  - jackass
+  - lezbo
+  - nutsack
+  - prick
+  - queef
+  - twat
+  - horny
+  - jackoff
+  - wank
+  - retard
